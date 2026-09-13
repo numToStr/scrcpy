@@ -853,8 +853,8 @@ aoa_complete:
                     sc_texture_get_hwaccel(&s->screen.tex);
                 int buffered_frames =
                     sc_hwaccel_count_buffered_frames(options);
-                sc_demuxer_enable_hardware_decoding(&s->video_demuxer, hwaccel,
-                                                    buffered_frames);
+                sc_decoder_enable_hardware_decoding(&s->video_decoder,
+                                                    hwaccel, buffered_frames);
             }
         }
 #elif defined(__linux__) || defined(_WIN32) || defined(__APPLE__)

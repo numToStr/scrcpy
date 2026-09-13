@@ -20,10 +20,6 @@ struct sc_demuxer {
     const struct sc_demuxer_callbacks *cbs;
     void *cbs_userdata;
 
-#ifdef HAVE_HWACCEL
-    struct sc_hwaccel *hwaccel;
-    int hwaccel_buffered_frames;
-#endif
 };
 
 enum sc_demuxer_status {
@@ -41,13 +37,6 @@ struct sc_demuxer_callbacks {
 void
 sc_demuxer_init(struct sc_demuxer *demuxer, const char *name, sc_socket socket,
                 const struct sc_demuxer_callbacks *cbs, void *cbs_userdata);
-
-#ifdef HAVE_HWACCEL
-void
-sc_demuxer_enable_hardware_decoding(struct sc_demuxer *demuxer,
-                                    struct sc_hwaccel *hwaccel,
-                                    int buffered_frames);
-#endif
 
 bool
 sc_demuxer_start(struct sc_demuxer *demuxer);

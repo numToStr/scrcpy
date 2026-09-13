@@ -4,6 +4,9 @@
 #include <libavcodec/packet.h>
 #include <libavutil/avutil.h>
 
+#ifdef HAVE_HWACCEL
+# include "hwaccel.h"
+#endif
 #include "util/log.h"
 
 /** Downcast packet_sink to decoder */
@@ -29,6 +32,13 @@ sc_decoder_open(struct sc_decoder *decoder, const AVCodec *codec,
     }
 
     decoder->ctx->flags |= AV_CODEC_FLAG_LOW_DELAY;
+
+#ifdef HAVE_HWACCEL
+    if (decoder->hwaccel && codec->type == AVMEDIA_TYPE_VIDEO) {
+        sc_hwaccel_configure_decoder(decoder->hwaccel, decoder->ctx,
+                                      decoder->hwaccel_buffered_frames);
+    }
+#endif
 
     r = avcodec_open2(decoder->ctx, codec, NULL);
     if (r < 0) {
@@ -175,6 +185,10 @@ sc_decoder_packet_sink_push_session(struct sc_packet_sink *sink,
 void
 sc_decoder_init(struct sc_decoder *decoder, const char *name) {
     decoder->name = name; // statically allocated
+#ifdef HAVE_HWACCEL
+    decoder->hwaccel = NULL;
+    decoder->hwaccel_buffered_frames = -1;
+#endif
     sc_frame_source_init(&decoder->frame_source);
 
     static const struct sc_packet_sink_ops ops = {
@@ -186,3 +200,14 @@ sc_decoder_init(struct sc_decoder *decoder, const char *name) {
 
     decoder->packet_sink.ops = &ops;
 }
+
+#ifdef HAVE_HWACCEL
+void
+sc_decoder_enable_hardware_decoding(struct sc_decoder *decoder,
+                                    struct sc_hwaccel *hwaccel,
+                                    int buffered_frames) {
+    assert(hwaccel);
+    decoder->hwaccel = hwaccel;
+    decoder->hwaccel_buffered_frames = buffered_frames;
+}
+#endif
