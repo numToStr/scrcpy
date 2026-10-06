@@ -126,7 +126,8 @@ if videotoolbox_support
     src += [ 'src/interop/interop_videotoolbox.c' ]
 endif
 
-libavdevice_dep = dependency('libavdevice', static: get_option('static'), required: false)
+libavdevice_dep = dependency('libavdevice', static: get_option('static'),
+                             required: get_option('client_audio') or v4l2_support)
 client_audio_support = get_option('client_audio') and libavdevice_dep.found()
 if client_audio_support
     src += [ 'src/client_audio.c' ]

@@ -58,6 +58,7 @@ else
         --disable-vulkan
         --disable-vdpau
         --enable-swresample
+        --enable-avdevice
         --enable-libdav1d
         --enable-decoder=h264
         --enable-decoder=hevc
@@ -84,6 +85,7 @@ else
     if [[ "$HOST" == linux ]]
     then
         conf+=(
+            --enable-indev=alsa
             --enable-libv4l2
             --enable-outdev=v4l2
             --enable-encoder=rawvideo
@@ -98,10 +100,15 @@ else
         )
     else
         conf+=(
-            # libavdevice is only used for V4L2 on Linux
-            --disable-avdevice
             --disable-vaapi
         )
+        if [[ "$HOST" == win* ]]
+        then
+            conf+=(--enable-indev=dshow)
+        elif [[ "$HOST" == macos ]]
+        then
+            conf+=(--enable-indev=avfoundation)
+        fi
     fi
 
     if [[ "$HOST" == win* ]]
